@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.xiaohuadev.content.mapper.CourseCategoryMapper;
 import org.xiaohuadev.content.model.dto.CourseCategoryTreeDto;
-import org.xiaohuadev.content.model.po.CourseCategory;
 import org.xiaohuadev.content.service.CourseCategoryService;
 
 import java.util.ArrayList;

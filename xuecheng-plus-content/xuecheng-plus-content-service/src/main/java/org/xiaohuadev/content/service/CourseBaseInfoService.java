@@ -1,7 +1,10 @@
 package org.xiaohuadev.content.service;
 
+import org.springframework.web.bind.annotation.RequestBody;
 import org.xiaohuadev.base.model.PageParams;
 import org.xiaohuadev.base.model.PageResult;
+import org.xiaohuadev.content.model.dto.AddCourseDto;
+import org.xiaohuadev.content.model.dto.CourseBaseInfoDto;
 import org.xiaohuadev.content.model.dto.QueryCourseParamsDto;
 import org.xiaohuadev.content.model.po.CourseBase;
 
@@ -18,4 +21,13 @@ public interface CourseBaseInfoService {
      * @return 分页数据返回类
      */
     public PageResult<CourseBase> queryCourseBaseList(PageParams pageParams, QueryCourseParamsDto courseParamsDto);
+
+    /**
+     * 新增课程
+     *
+     * @param companyId    机构id
+     * @param addCourseDto 要添加的课程信息
+     * @return 添加到数据库的课程信息
+     */
+    public CourseBaseInfoDto createCourseBase(Long companyId, AddCourseDto addCourseDto);
 }

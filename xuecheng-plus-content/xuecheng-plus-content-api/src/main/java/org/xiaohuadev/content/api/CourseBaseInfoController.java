@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.xiaohuadev.base.model.PageParams;
 import org.xiaohuadev.base.model.PageResult;
+import org.xiaohuadev.content.model.dto.AddCourseDto;
+import org.xiaohuadev.content.model.dto.CourseBaseInfoDto;
 import org.xiaohuadev.content.model.dto.QueryCourseParamsDto;
 import org.xiaohuadev.content.model.po.CourseBase;
 import org.xiaohuadev.content.service.CourseBaseInfoService;
@@ -18,10 +20,18 @@ public class CourseBaseInfoController {
     @Autowired
     private CourseBaseInfoService courseBaseInfoService;
 
-    @PostMapping("/course/list")
     @ApiOperation("课程查询接口")
+    @PostMapping("/course/list")
     public PageResult<CourseBase> list(PageParams pageParams,
                                        @RequestBody(required = false) QueryCourseParamsDto queryCourseParams) {
         return courseBaseInfoService.queryCourseBaseList(pageParams, queryCourseParams);
+    }
+
+    @ApiOperation("新增课程")
+    @PostMapping("/course")
+    public CourseBaseInfoDto createCourseBase(@RequestBody AddCourseDto addCourseDto) {
+        //获取到用户所属的机构id
+        Long companyId = 1232141425L;
+        return courseBaseInfoService.createCourseBase(companyId, addCourseDto);
     }
 }
