@@ -18,7 +18,7 @@ Content-Type: application/json
 {
   "charge": "201001",
   "price": 10,
-  "originalPrice":100,
+  "originalPrice": 100,
   "qq": "22333",
   "wechat": "223344",
   "phone": "13333333",
@@ -33,3 +33,8 @@ Content-Type: application/json
   "grade": "204001",
   "description": "原神高级篇原神高级篇原神高级篇原神高级篇"
 }
+
+### 根据id查询课程信息
+GET {{content_host}}/content/course/40
+Content-Type: application/json
+

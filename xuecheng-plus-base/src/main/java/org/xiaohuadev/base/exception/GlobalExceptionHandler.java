@@ -1,8 +1,14 @@
 package org.xiaohuadev.base.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 全局异常处理器
@@ -41,5 +47,26 @@ public class GlobalExceptionHandler {
     public RestErrorResponse exception(Exception unknownException) {
         log.error("系统异常{}", unknownException.getMessage());
         return new RestErrorResponse(CommonError.UNKNOWN_ERROR.getErrMessage());
+    }
+
+    /**
+     * 捕获参数异常
+     *
+     * @param exception 参数校验错误异常
+     * @return 异常信息模型类
+     */
+    @ResponseBody
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public RestErrorResponse methodArgumentNotValidException(MethodArgumentNotValidException exception) {
+        BindingResult bindingResult = exception.getBindingResult();
+        List<String> errors = new ArrayList<>();
+        bindingResult.getFieldErrors().stream().forEach(item -> {
+            errors.add(item.getDefaultMessage());
+        });
+
+        String errorMessage = StringUtils.join(errors, ",");
+        log.error("系统异常{}", exception.getMessage());
+        return new RestErrorResponse(errorMessage);
     }
 }
