@@ -3,18 +3,23 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>xuecheng-plus-system</artifactId>
+        <artifactId>xuecheng-plus-media</artifactId>
         <groupId>org.xiaohuadev</groupId>
         <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>xuecheng-plus-system-service</artifactId>
-    <name>xuecheng-plus-system-service</name>
-    <description>xuecheng-plus-system-service</description>
+    <artifactId>xuecheng-plus-media-service</artifactId>
+    <name>xuecheng-plus-media-service</name>
+    <description>xuecheng-plus-media-service</description>
 
     <dependencies>
         <dependency>
-            <groupId>com.xuecheng</groupId>
-            <artifactId>xuecheng-plus-system-model</artifactId>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.xiaohuadev</groupId>
+            <artifactId>xuecheng-plus-media-model</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
@@ -56,8 +61,26 @@
 
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio</artifactId>
+            <version>8.5.7</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>4.8.1</version>
+        </dependency>
+
+
 
     </dependencies>
 
