@@ -2,6 +2,7 @@ package org.xiaohuadev.content.service;
 
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.xiaohuadev.content.model.dto.BindTeachplanMediaDto;
 import org.xiaohuadev.content.model.dto.SaveTeachplanDto;
 import org.xiaohuadev.content.model.dto.TeachplanDto;
 
@@ -44,4 +45,10 @@ public interface TeachplanService {
      * @param courseId 课程id
      */
     public void moveUp(Long courseId);
+
+    /**
+     * 绑定课程和媒资文件关系
+     * @param bindTeachplanMediaDto 课程和媒资绑定关系实体类
+     */
+    public void associationMedia(BindTeachplanMediaDto bindTeachplanMediaDto);
 }

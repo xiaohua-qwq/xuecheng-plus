@@ -24,10 +24,12 @@ import org.xiaohuadev.base.model.PageResult;
 import org.xiaohuadev.base.model.RestResponse;
 import org.xiaohuadev.media.config.MinioConfig;
 import org.xiaohuadev.media.mapper.MediaFilesMapper;
+import org.xiaohuadev.media.mapper.MediaProcessMapper;
 import org.xiaohuadev.media.model.dto.QueryMediaParamsDto;
 import org.xiaohuadev.media.model.dto.UploadFileParamsDto;
 import org.xiaohuadev.media.model.dto.UploadFileResultDto;
 import org.xiaohuadev.media.model.po.MediaFiles;
+import org.xiaohuadev.media.model.po.MediaProcess;
 import org.xiaohuadev.media.service.MediaFileService;
 
 import java.io.*;
@@ -52,6 +54,9 @@ public class MediaFileServiceImpl implements MediaFileService {
 
     @Autowired
     MediaFilesMapper mediaFilesMapper;
+
+    @Autowired
+    private MediaProcessMapper mediaProcessMapper;
 
     @Override
     public PageResult<MediaFiles> queryMediaFiels(Long companyId, PageParams pageParams,
@@ -157,9 +162,35 @@ public class MediaFileServiceImpl implements MediaFileService {
                 log.error("向数据库保存文件信息失败 bucket:{} objectName:{}", bucket, objectName);
                 return null;
             }
+            //记录待处理任务(写入待处理任务表)
+            this.addWaitingTask(mediaFiles);
             return mediaFiles;
         }
         return mediaFiles;
+    }
+
+    /**
+     * 添加待处理任务到数据库
+     *
+     * @param mediaFiles 媒资文件信息
+     */
+    private void addWaitingTask(MediaFiles mediaFiles) {
+        //通过mimeType获取文件的类型
+        String filename = mediaFiles.getFilename();
+        String extension = filename.substring(filename.lastIndexOf("."));
+        String mimeType = this.getMimeType(extension);
+
+        //如果文件是avi格式 则写入待处理任务表
+        if (mimeType.equals("video/x-msvideo")) {
+            MediaProcess mediaProcess = new MediaProcess();
+            BeanUtils.copyProperties(mediaFiles, mediaProcess);
+            mediaProcess.setStatus("1"); //设置文件状态为待处理
+            mediaProcess.setCreateDate(LocalDateTime.now());
+            mediaProcess.setFailCount(0); //设置失败次数为0次
+            mediaProcess.setUrl(null); //设置url为空 处理完成后才有数据
+
+            mediaProcessMapper.insert(mediaProcess);
+        }
     }
 
     //获取文件的md5
@@ -429,5 +460,10 @@ public class MediaFileServiceImpl implements MediaFileService {
             }
         }
         return null;
+    }
+
+    @Override
+    public MediaFiles getFileById(String id) {
+        return mediaFilesMapper.selectById(id);
     }
 }

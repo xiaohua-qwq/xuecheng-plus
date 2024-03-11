@@ -4,6 +4,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.xiaohuadev.content.model.dto.BindTeachplanMediaDto;
 import org.xiaohuadev.content.model.dto.SaveTeachplanDto;
 import org.xiaohuadev.content.model.dto.TeachplanDto;
 import org.xiaohuadev.content.service.TeachplanService;
@@ -49,5 +50,12 @@ public class TeachplanController {
     public void moveUp(@PathVariable Long courseId) {
         teachplanService.moveUp(courseId);
     }
+
+    @ApiOperation(value = "课程计划和媒资信息绑定")
+    @PostMapping("/teachplan/association/media")
+    public void associationMedia(@RequestBody BindTeachplanMediaDto bindTeachplanMediaDto) {
+        teachplanService.associationMedia(bindTeachplanMediaDto);
+    }
+
 
 }
