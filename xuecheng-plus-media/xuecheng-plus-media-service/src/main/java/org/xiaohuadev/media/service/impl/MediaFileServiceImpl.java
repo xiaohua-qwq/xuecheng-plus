@@ -1,5 +1,6 @@
 package org.xiaohuadev.media.service.impl;
 
+import com.alibaba.nacos.common.utils.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.j256.simplemagic.ContentInfo;
@@ -100,11 +101,12 @@ public class MediaFileServiceImpl implements MediaFileService {
      * @param companyId           机构id
      * @param uploadFileParamsDto 文件相关信息
      * @param localFilePath       文件本地路径
+     * @param objectName          如果传入了ObjectName 那么按照这个参数的路径去存储 否则按默认年月日路径存储
      * @return 上传文件返回Dto
      */
     @Override
     public UploadFileResultDto uploadFile(Long companyId, UploadFileParamsDto uploadFileParamsDto,
-                                          String localFilePath) {
+                                          String localFilePath, String objectName) {
         //将文件上传到MinIO
         String filename = uploadFileParamsDto.getFilename(); //获取到文件拓展名
         String extension = filename.substring(filename.lastIndexOf("."));
@@ -112,7 +114,9 @@ public class MediaFileServiceImpl implements MediaFileService {
 
         String defaultFolderPath = getDefaultFolderPath(); //根据当前日期获取文件应存入MinIo的路径
         String fileMd5 = getFileMd5(new File(localFilePath)); //获取文件Md5值作为文件名拼接
-        String objectName = defaultFolderPath + fileMd5; //拼接路径+文件名(Md5)
+        if(StringUtils.isEmpty(objectName)){ //传入的ObjectName为空 按默认存储规则
+            objectName = defaultFolderPath + fileMd5; //拼接路径+文件名(Md5)
+        }
         boolean result = addMediaFiles2MinIo(localFilePath, mimeType, bucket_mediaFiles, objectName);
         if (!result) {
             XueChengPlusException.cast("上传文件失败");

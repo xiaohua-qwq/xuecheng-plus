@@ -37,7 +37,7 @@ public interface MediaFileService {
      * @return 上传文件返回Dto
      */
     public UploadFileResultDto uploadFile(Long companyId, UploadFileParamsDto uploadFileParamsDto,
-                                          String localFilePath);
+                                          String localFilePath,String objectName);
 
     /**
      * 仅用作于本类中非代理方法代码块 调用事务控制方法使用的接口

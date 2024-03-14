@@ -44,7 +44,8 @@ public class MediaFilesController {
 
     @ApiOperation("图片上传接口")
     @RequestMapping(value = "/upload/coursefile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public UploadFileResultDto upload(@RequestPart("filedata") MultipartFile fileData) {
+    public UploadFileResultDto upload(@RequestPart("filedata") MultipartFile fileData,
+                                      @RequestParam(value = "objectName", required = false) String objectName) {
         Long companyId = 1232141425L;
         UploadFileParamsDto uploadFileParamsDto = new UploadFileParamsDto();
         uploadFileParamsDto.setFilename(fileData.getOriginalFilename()); //设置原始文件名称
@@ -55,7 +56,7 @@ public class MediaFilesController {
             File tempFile = File.createTempFile("minio", "temp"); //创建临时文件(minio.temp)
             fileData.transferTo(tempFile); //将传入服务器的文件复制到临时文件中
             String absolutePath = tempFile.getAbsolutePath(); //获取文件绝对路径
-            return mediaFileService.uploadFile(companyId, uploadFileParamsDto, absolutePath);
+            return mediaFileService.uploadFile(companyId, uploadFileParamsDto, absolutePath, objectName);
         } catch (Exception e) {
             XueChengPlusException.cast("控制器处理文件时错误");
             return null;
