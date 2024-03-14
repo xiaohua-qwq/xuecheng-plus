@@ -1,0 +1,53 @@
+#server:
+#  servlet:
+#    context-path: /system
+#  port: 63110
+#微服务配置
+spring:
+  application:
+    name: system-api
+  cloud:
+    nacos:
+      server-addr: 211.101.233.206:8848
+      discovery:
+        namespace: developer
+        group: xuecheng-plus-project
+      config:
+        namespace: developer
+        group: xuecheng-plus-project
+        file-extension: yaml
+        refresh-enabled: true
+        extension-configs:
+          - data-id: system-api-${spring.profiles.active}.yaml
+            group: xuecheng-plus-project
+            refresh: true
+          - data-id: system-service-${spring.profiles.active}.yaml
+            group: xuecheng-plus-project
+            refresh: true
+        shared-configs:
+          - data-id: swagger-${spring.profiles.active}.yaml
+            group: xuecheng-plus-common
+            refresh: true
+          - data-id: logging-${spring.profiles.active}.yaml
+            group: xuecheng-plus-common
+            refresh: true
+
+  profiles:
+    active: dev
+
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://39.105.170.134:3306/xc_system?serverTimezone=UTC&userUnicode=true&useSSL=false&
+#    username: root
+#    password: zhang771379
+# 日志文件配置路径
+#logging:
+#  config: classpath:log4j2-dev.xml
+
+# swagger 文档配置
+#swagger:
+#  title: "学成在线系统管理"
+#  description: "系统管理接口"
+#  base-package: org.xiaohuadev.system
+#  enabled: true
+#  version: 1.0.0

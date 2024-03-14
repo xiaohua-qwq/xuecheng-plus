@@ -9,9 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.xiaohuadev.base.exception.XueChengPlusException;
 import org.xiaohuadev.content.mapper.TeachplanMapper;
+import org.xiaohuadev.content.mapper.TeachplanMediaMapper;
+import org.xiaohuadev.content.model.dto.BindTeachplanMediaDto;
 import org.xiaohuadev.content.model.dto.SaveTeachplanDto;
 import org.xiaohuadev.content.model.dto.TeachplanDto;
 import org.xiaohuadev.content.model.po.Teachplan;
+import org.xiaohuadev.content.model.po.TeachplanMedia;
 import org.xiaohuadev.content.service.TeachplanService;
 
 import java.util.List;
@@ -24,6 +27,9 @@ public class TeachplanServiceImpl implements TeachplanService {
 
     @Autowired
     private TeachplanMapper teachplanMapper;
+
+    @Autowired
+    private TeachplanMediaMapper teachplanMediaMapper;
 
     /**
      * 查询课程计划
@@ -132,7 +138,7 @@ public class TeachplanServiceImpl implements TeachplanService {
             ExchangeObjects.setOrderby(temp);
             teachplanMapper.updateById(teachplan);
             teachplanMapper.updateById(ExchangeObjects);
-        }catch (Exception e){
+        } catch (Exception e) {
             XueChengPlusException.cast("该课程已在最底部");
         }
     }
@@ -180,5 +186,28 @@ public class TeachplanServiceImpl implements TeachplanService {
         } catch (Exception e) {
             XueChengPlusException.cast("该课程已在最顶部");
         }
+    }
+
+    /**
+     * 绑定课程和媒资文件关系
+     * @param bindTeachplanMediaDto 课程和媒资绑定关系实体类
+     */
+    @Override
+    public void associationMedia(BindTeachplanMediaDto bindTeachplanMediaDto) {
+        //获取到课程计划id 并查询出课程id
+        Long teachplanId = bindTeachplanMediaDto.getTeachplanId();
+        Teachplan teachplan = teachplanMapper.selectById(teachplanId);
+        if (teachplan == null) XueChengPlusException.cast("课程计划不存在");
+
+        //先删除原有记录 根据课程计划删除他所绑定的媒资
+        teachplanMediaMapper.delete(new LambdaQueryWrapper<TeachplanMedia>()
+                .eq(TeachplanMedia::getTeachplanId, bindTeachplanMediaDto.getTeachplanId()));
+
+        //添加新记录
+        TeachplanMedia teachplanMedia = new TeachplanMedia();
+        BeanUtils.copyProperties(bindTeachplanMediaDto, teachplanMedia);
+        teachplanMedia.setCourseId(teachplan.getCourseId());
+        teachplanMedia.setMediaFilename(bindTeachplanMediaDto.getFileName());
+        teachplanMediaMapper.insert(teachplanMedia);
     }
 }
