@@ -3,14 +3,22 @@ package org.xiaohuadev.content.service.jobhandler;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.xiaohuadev.base.exception.XueChengPlusException;
+import org.xiaohuadev.content.service.CoursePublishService;
 import org.xiaohuadev.messagesdk.model.po.MqMessage;
 import org.xiaohuadev.messagesdk.service.MessageProcessAbstract;
 import org.xiaohuadev.messagesdk.service.MqMessageService;
 
+import java.io.File;
+
 @Slf4j
 @Component
 public class CoursePublishTask extends MessageProcessAbstract {
+
+    @Autowired
+    private CoursePublishService coursePublishService;
 
     //任务调度入口
     @XxlJob("CoursePublishJobHandler")
@@ -53,7 +61,12 @@ public class CoursePublishTask extends MessageProcessAbstract {
             return;
         }
 
-        //TODO
+        //开始课程静态化 生成HTML页面
+        File file = coursePublishService.generateCourseHtml(courseId);
+        if (file == null) XueChengPlusException.cast("生成的静态页面为空");
+
+        //将HTML上传到MinIO
+        coursePublishService.uploadCourseHtml(courseId, file);
 
         //处理完成 修改当前任务状态为完成
         mqMessageService.completedStageOne(taskId);

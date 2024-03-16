@@ -2,6 +2,8 @@ package org.xiaohuadev.content.service;
 
 import org.xiaohuadev.content.model.dto.CoursePreviewDto;
 
+import java.io.File;
+
 /**
  * 课程发布相关接口
  */
@@ -29,6 +31,21 @@ public interface CoursePublishService {
      * @param courseId  课程id
      */
     public void publish(Long companyId, Long courseId);
+
+    /**
+     * 课程静态化
+     *
+     * @param courseId 课程id
+     * @return File 静态化文件
+     */
+    public File generateCourseHtml(Long courseId);
+
+    /**
+     * 上传课程静态化页面
+     *
+     * @param file 静态化文件
+     */
+    public void uploadCourseHtml(Long courseId, File file);
 
 
 }

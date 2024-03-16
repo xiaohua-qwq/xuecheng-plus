@@ -2,6 +2,13 @@ package org.xiaohuadev.content.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.nacos.common.utils.StringUtils;
+import com.xuecheng.content.config.MultipartSupportConfig;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import org.apache.commons.io.IOUtils;
+import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
+import org.springframework.web.multipart.MultipartFile;
+import org.xiaohuadev.content.feignclient.MediaServiceClient;
 import org.xiaohuadev.messagesdk.model.po.MqMessage;
 import org.xiaohuadev.messagesdk.service.MqMessageService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +33,11 @@ import org.xiaohuadev.content.service.CourseBaseInfoService;
 import org.xiaohuadev.content.service.CoursePublishService;
 import org.xiaohuadev.content.service.TeachplanService;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -47,6 +58,8 @@ public class CoursePublishServiceImpl implements CoursePublishService {
     private CoursePublishMapper coursePublishMapper;
     @Autowired
     private MqMessageService mqMessageService;
+    @Autowired
+    private MediaServiceClient mediaServiceClient;
 
     /**
      * 根据课程id返回课程信息预览数据模型
@@ -168,6 +181,69 @@ public class CoursePublishServiceImpl implements CoursePublishService {
 
         //删除预发布表数据
         coursePublishPreMapper.deleteById(courseId);
+    }
+
+    /**
+     * 课程静态化
+     *
+     * @param courseId 课程id
+     * @return File 静态化文件
+     */
+    @Override
+    public File generateCourseHtml(Long courseId) {
+        //获取freemarker的configuration
+        Configuration configuration = new Configuration(Configuration.getVersion());
+
+        File htmlFile = null; //要返回的文件
+
+        try {
+            //获取类路径
+            String classPath = this.getClass().getResource("/").getPath();
+            //指定模板目录
+            configuration.setDirectoryForTemplateLoading(new File(classPath + "\\templates\\"));
+            //设置编码
+            configuration.setDefaultEncoding("utf-8");
+
+            //获取template模板
+            Template template = configuration.getTemplate("course_template.ftl");
+
+            CoursePreviewDto coursePreviewDto = this.preview(courseId);
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("model", coursePreviewDto);
+
+            //Template template, Object model
+            String htmlString = FreeMarkerTemplateUtils.processTemplateIntoString(template, map);
+
+            //输出文件
+            InputStream inputStream = IOUtils.toInputStream(htmlString, "utf-8");
+            htmlFile = File.createTempFile("coursepublish", ".html");
+            FileOutputStream outputStream = new FileOutputStream(htmlFile);
+            IOUtils.copy(inputStream, outputStream); //使用流写出html文件
+        } catch (Exception e) {
+            log.error("页面静态化异常:{}", e.getMessage());
+        }
+        return htmlFile;
+    }
+
+    /**
+     * 上传课程静态化页面
+     *
+     * @param courseId 课程id
+     * @param file     静态化文件
+     */
+    @Override
+    public void uploadCourseHtml(Long courseId, File file) {
+        try {
+            MultipartFile multipartFile = MultipartSupportConfig.getMultipartFile(file);
+
+            String upload = mediaServiceClient.upload(multipartFile, "course/" + courseId + ".html");
+            if (upload.equals("?")) {
+                log.error("远程调用上传课程失败 课程id为:{}", courseId);
+                XueChengPlusException.cast("上传静态文件过程中存在异常");
+            }
+        } catch (Exception e) {
+            XueChengPlusException.cast("上传静态文件过程中存在异常");
+        }
     }
 
     private void saveCoursePublishMessage(Long courseId) {
