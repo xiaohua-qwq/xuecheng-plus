@@ -3,9 +3,15 @@ package org.xiaohuadev.content.service.jobhandler;
 import com.xxl.job.core.context.XxlJobHelper;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.xiaohuadev.base.exception.XueChengPlusException;
+import org.xiaohuadev.content.feignclient.CourseIndex;
+import org.xiaohuadev.content.feignclient.SearchServiceClient;
+import org.xiaohuadev.content.mapper.CoursePublishMapper;
+import org.xiaohuadev.content.model.dto.CoursePreviewDto;
+import org.xiaohuadev.content.model.po.CoursePublish;
 import org.xiaohuadev.content.service.CoursePublishService;
 import org.xiaohuadev.messagesdk.model.po.MqMessage;
 import org.xiaohuadev.messagesdk.service.MessageProcessAbstract;
@@ -19,6 +25,10 @@ public class CoursePublishTask extends MessageProcessAbstract {
 
     @Autowired
     private CoursePublishService coursePublishService;
+    @Autowired
+    private SearchServiceClient searchServiceClient;
+    @Autowired
+    private CoursePublishMapper coursePublishMapper;
 
     //任务调度入口
     @XxlJob("CoursePublishJobHandler")
@@ -82,7 +92,12 @@ public class CoursePublishTask extends MessageProcessAbstract {
             return;
         }
 
-        //TODO
+        //远程调用搜索服务创建索引
+        CoursePublish coursePublish = coursePublishMapper.selectById(courseId);
+        CourseIndex courseIndex = new CourseIndex();
+        BeanUtils.copyProperties(coursePublish, courseIndex);
+        Boolean status = searchServiceClient.add(courseIndex);
+        if (!status) XueChengPlusException.cast("远程调用搜索服务添加课程索引失败");
 
         mqMessageService.completedStageTwo(taskId);
     }

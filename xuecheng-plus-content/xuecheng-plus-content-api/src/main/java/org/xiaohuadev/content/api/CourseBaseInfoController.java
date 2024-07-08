@@ -3,6 +3,7 @@ package org.xiaohuadev.content.api;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.xiaohuadev.base.exception.ValidationGroups;
@@ -14,6 +15,7 @@ import org.xiaohuadev.content.model.dto.EditCourseDto;
 import org.xiaohuadev.content.model.dto.QueryCourseParamsDto;
 import org.xiaohuadev.content.model.po.CourseBase;
 import org.xiaohuadev.content.service.CourseBaseInfoService;
+import org.xiaohuadev.content.util.SecurityUtil;
 
 @RestController
 @Api(value = "课程信息管理接口", tags = "课程信息管理接口")
@@ -40,6 +42,9 @@ public class CourseBaseInfoController {
     @ApiOperation("根据Id查询课程信息")
     @GetMapping("/course/{courseId}")
     public CourseBaseInfoDto getCourseBaseById(@PathVariable Long courseId) {
+        //获取当前用户的身份
+        SecurityUtil.XcUser user = SecurityUtil.getUser();
+        System.out.println(user.getUsername());
         return courseBaseInfoService.getCourseBaseInfo(courseId);
     }
 
